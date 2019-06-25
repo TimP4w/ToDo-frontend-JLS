@@ -1,10 +1,11 @@
 <template>
-<div class="task" @mouseover="toggleRemove" @mouseout="hideRemove">
+<div class="task" @mouseover="showRemove" @mouseout="hideRemove">
   <div class="done-box">
     <label class="check">
       <input type="checkbox"
            id="isDone" 
-           v-model="status">
+           v-model="status"
+           @click="updateTask">
       <span class="task-check"> </span>
     </label>
   </div>
@@ -22,7 +23,9 @@
     </div>     
   </div>
   <div class="remove">
-    <div :class="{'hidden' : !showRemove}"><i class="fas fa-trash"></i></div>
+    <div :class="{'hidden' : !toggleRemove}" @click="removeTask">
+      <i class="fas fa-trash"></i>
+    </div>
   </div>
 </div>
 
@@ -35,11 +38,12 @@ export default {
     id: Number,
     description: String,
     date: Date,
-    status: Boolean
+    status: Boolean,
+    index: Number
   },
   data: function () {
     return {
-      showRemove: false, 
+      toggleRemove: false, 
     }
   },
   filters: {
@@ -53,11 +57,17 @@ export default {
     }
   },
   methods: {
-    toggleRemove() {
-      this.showRemove = true;
+    showRemove() {
+      this.toggleRemove = true;
     },
     hideRemove() {
-      this.showRemove = false;
+      this.toggleRemove = false;
+    },
+    updateTask() {
+      this.$emit("task-updated", {id: this.id, status: !this.status});
+    },
+    removeTask() {
+      this.$emit("task-deleted", {id: this.id});
     }
 
   }
@@ -66,11 +76,14 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
+/* https://www.w3schools.com/howto/howto_css_custom_checkbox.asp */
 .check {
   display: block;
   position: relative;
   cursor: pointer;
   border-radius: 10px;
+  top: 10px;
 }
 
 .check input {
@@ -122,6 +135,9 @@ export default {
   border-style: solid;
   width: 50%;
   height: 35px;
+  content: "";
+  clear: both;
+  display: table;
 }
 
 .done-box {
@@ -132,7 +148,9 @@ export default {
 .description {
   width: 60%;
   float: left;
-  padding-left: 40px;
+  content: "";
+  clear: both;
+  display: table;
 }
 
 .date {
@@ -146,7 +164,7 @@ export default {
 
 .remove {
   width: 10%;
-  float: left;
+  float: right;
 }
 
 .done{
