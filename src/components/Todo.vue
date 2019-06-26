@@ -1,193 +1,291 @@
 <template>
-<div class="task" @mouseover="showRemove" @mouseout="hideRemove">
-  <div class="done-box">
-    <label class="check">
-      <input type="checkbox"
-           id="isDone" 
-           v-model="status"
-           @click="updateTask">
-      <span class="task-check"> </span>
-    </label>
-  </div>
-  <div class="description">
-    <div :class="{ 'done': status }">
-      <slot></slot>
+  <div class="main">
+    <div class="header">
+      <h1> My ToDo List </h1>
+      <p class="task-counter"> 
+        <span class="count">{{tasksDoneCount}}</span> task(s) done out of <span class="count">{{tasksCount}}</span> 
+      </p>
+      <div class="toggle-input" :class="{active: showInput}" @click="toggleInput">
+        <i class="fas fa-plus plus"></i>
+      </div>
     </div>
-  </div>
-  <div class="date">
-    <div class="days-left">
-       <i class="far fa-clock"></i> {{date | daysleft}}
-    </div>     
-  </div>
-  <div class="remove">
-    <div :class="{'hidden' : !toggleRemove}" @click="removeTask">
-      <i class="fas fa-trash"></i>
+    <div class="error" v-if="isError">
+      <h3> Oops. </h3>
+      <span>{{error_message}}</span>
     </div>
-  </div>
-</div>
+    <div class="input-form" :class="{active: showInput}" >
+    <form class="new-task-form" v-on:submit.prevent="addNewTask">
+        <input id="description" 
+            type="text" 
+            v-model="newTaskDescription"
+            autocomplete="off"
+            placeholder="E.g. Complete the ToDo app">
+    </form>
+    </div>
+    <div class="no-content" v-if="tasksCount == 0"> 
+      <h2> There are no tasks yet </h2>
+      <span> Start by adding one </span>
 
+    </div>
+    <div class="tasks-todo">
+      <Task v-for="task in tasksTodoList" 
+          v-bind:id="task.id" 
+          v-bind:date="task.date"
+          v-bind:description="task.desc"
+          v-bind:status="task.status"
+          v-bind:key="task.id"
+          @task-updated="updateTask" 
+          @task-deleted="removeTask"> {{ task.desc }} </Task>
+    </div>
+    <div class="tasks-done">
+      <Task v-for="task in tasksDoneList" 
+          v-bind:id="task.id" 
+          v-bind:date="task.date"
+          v-bind:description="task.desc"
+          v-bind:status="task.status"
+          v-bind:key="task.id"
+          @task-updated="updateTask" 
+          @task-deleted="removeTask"> {{ task.desc }} </Task>
+    </div>
+  </div>
 </template>
 
+
 <script>
+import Task from './Task.vue'
+
 export default {
-  name: 'ToDo',
+  name: 'Todo',
+  components: {
+    Task
+  },
   props: {
-    id: Number,
-    description: String,
-    date: Date,
-    status: Boolean,
-    index: Number
   },
   data: function () {
     return {
-      toggleRemove: false, 
+      nextId: 4, // only for testing before API implementation
+      newTaskDescription: "", // holder for input data
+      tasksList: [],
+      tasksCount: 0,
+      tasksDoneCount: 0,
+      errorMessage: "",
+      isError: false,
+      showInput: false,      
     }
   },
-  filters: {
-    readable: function(value) {
-      return value.getDay() + "/" + value.getMonth() + "/" + value.getFullYear();
+  mounted() {
+
+    //TODO Make GET request to retrieve data
+  
+    let date = new Date('7/13/2019'); // only for testing
+    this.tasksList = [
+        {id: 1, desc: "Lorem ipsum dolor sic amet", status: false, date: date},
+        {id: 2, desc: "Another todo thing", status: false, date: date},
+        {id: 3, desc: "This is getting repetitive", status: true, date: date},
+      ];
+
+    // Initialize counters
+    this.tasksCount = this.tasksList.length;
+    // count every task with status true (=done)
+    this.tasksDoneCount = this.tasksList.filter(function(task) {return task.status === true}).length; 
+  },
+  //Filtered lists methods
+  computed: {
+    /*                                                                    *
+    *       Returns a list with the tasks with status == true             *
+    *                                                                     */
+    tasksDoneList() {
+      return this.tasksList.filter(function(task) {
+        return task.status === true
+      });
     },
-    daysleft: function(value) {
-      let today = new Date();
-      let diff = Math.abs(today - value);
-      return "In " + Math.ceil(diff / (1000 * 60 * 60 * 24)) + " days";
+    /*                                                                    *
+    *       Returns a list with the tasks with status == false            *
+    *                                                                     */
+    tasksTodoList() {
+      return this.tasksList.filter(function(task) {
+        return task.status !== true
+      });
     }
   },
   methods: {
-    showRemove() {
-      this.toggleRemove = true;
-    },
-    hideRemove() {
-      this.toggleRemove = false;
-    },
-    updateTask() {
-      this.$emit("task-updated", {id: this.id, status: !this.status});
-    },
-    removeTask() {
-      this.$emit("task-deleted", {id: this.id});
-    }
+    /*                                                                    *
+    *       Add a new Task to the list with date +5 days                  *
+    *                                                                     */
+    addNewTask() {
+      //Check if input is empty
+      if (this.newTaskDescription === "") {
+        this.isError = true;
+        this.errorMessage = "Your task cannot be empty!";
+      } else {
+        let date = new Date();
+        date.setDate(date.getDate() + 5); // Add 5 days to current date
 
-  }
+        this.tasksList.push({
+          id: this.nextId++,
+          desc: this.newTaskDescription,
+          status: false,
+          date: date,
+        })
+
+        this.newTaskDescription = "";
+        this.tasksCount++;
+        this.isError = false;
+      }
+    },
+    /*                                                                                  *
+    *       Remove task from list by id (got via event) and decrement counters          *
+    *                                                                                   */
+    // TODO API
+    removeTask(task) {
+      this.tasksList.splice(this.tasksList.findIndex((task2) => task.id === task2.id), 1);
+      this.tasksCount--;
+      this.tasksDoneCount = this.tasksDoneList.length;
+    },
+    /*                                                                                  *
+    *       Update task from list by id (got via event) and decrement counters          *
+    *       or increment, based on status.                                              *
+    *                                                                                   */
+    // TODO API
+    updateTask(task) {
+      if (task.status === true) {
+        this.tasksDoneCount++
+      } else {
+        this.tasksDoneCount--;
+      }
+      this.tasksList[this.tasksList.findIndex((task2) => task.id === task2.id)].status = task.status;
+    },
+
+    /*                                     *
+    *           Toggle input form          *
+    *                                      *
+    *                                      */
+    toggleInput() {
+      this.showInput = !this.showInput;
+    }
+  },
+
+  
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
-/* https://www.w3schools.com/howto/howto_css_custom_checkbox.asp */
-.check {
-  display: block;
-  position: relative;
-  cursor: pointer;
-  border-radius: 10px;
-  top: 10px;
-}
-
-.check input {
-  opacity: 0;
-}
-
-.task-check {
+.main {
+  background-color: white;
+  width: 50%;
   position: absolute;
-  top: 20%;
-  left: 20px;
-  height: 25px;
-  width: 25px;
-  border-radius: 20px;
-  border-style: solid;
-  border-width: 1;
+  top: 5%;
+  left: 25%;
+  border-radius: 15px;
+  box-shadow: -1px 4px 20px 0px grey;
+  overflow: auto;
+  padding-bottom: 50px;
+  margin-bottom: 50px;
 }
 
-.check:hover input ~ .task-check {
-  background: rgb(17, 219, 10);
+.error {
+  margin-bottom: 10px;
+  background-color: #e74c3c;
+  color: white;
 }
 
-.task-check:after {
-  content: "";
-  position: absolute;
-  display: none;
+.no-content {
+  padding-bottom: 50px;
 }
 
-.check input:checked ~ .task-check:after {
-  display: block;
-}
-
-.check .task-check:after {
-  left: 9px;
-  top: 5px;
-  width: 5px;
-  height: 10px;
-  border: solid green;
-  border-width: 0 3px 3px 0;
-  -webkit-transform: rotate(45deg);
-  -ms-transform: rotate(45deg);
-}
-
-.task {
-  display: flex;
-  padding-top: 10px;
+.header {
+  background-color: #3498db;
+  padding-top: 20px;
   padding-bottom: 10px;
-  margin: auto;
-  border-width: 0px 0px 1px 0px;
-  border-color: black;
-  border-style: solid;
+  margin-bottom: 35px;
+  color: white;
+}
+
+.count {
+  font-size: 30px;
+}
+
+/* Toggle input button */
+.toggle-input {
+  position: relative;
+  background-color: #c0392b;
+  border-radius: 30px;
+  width: 50px;
+  height: 50px;
+  font-size: 30px;
+  align-content: center;
+  left: 48%;
+  bottom: -32px;
+  transform: rotate(0deg);
+  transition: transform 0.2s ease-in;
+}
+
+.toggle-input.active {
+  transition: transform 0.2s ease-in;
+  transform: rotate(45deg);
+}
+
+.toggle-input:hover {
+  background-color: #e74c3c;
+
+}
+
+.toggle-input:active {
+  background-color: #c0392b;  
+}
+
+.plus {
+  position: relative;
+  top: 12%;
+  
+}
+/* ==================== */
+
+/* Input Form */
+.input-form {
+  height: 0px;
+  transition: height 0.5s ease-in;
+  overflow: hidden;
+}
+
+.input-form.active {
+  height: 100px;
+  transition: height 0.5s ease-in;
+  overflow: hidden;
+}
+
+.new-task-form input[type=text]:hover {
+  background: #3498db;
+}
+
+.new-task-form input {
   width: 100%;
-  height: 35px;
-  content: "";
-  clear: both;
-  display: table;
-}
-
-.done-box {
-  width: 10%;
-  float: left;
-}
-
-.description {
-  width: 60%;
-  float: left;
-  content: "";
-  clear: both;
-  display: table;
-}
-
-.date {
-  width: 20%;
-  float: left;
-}
-
-.days-left {
-  font-weight: bold;
-}
-
-.remove {
-  width: 10%;
-  float: right;
-}
-
-.done{
-  text-decoration-line: line-through;
-  color: grey;
-}
-
-.hidden {
-  opacity: 0;
-}
-
-.fa-trash {
+  height: 70px;
+  background: #2980b9;
+  color: #ecf0f1;
   font-size: 24px;
-  cursor: pointer;
+  text-align: center;
+  font-family: 'Nova Flat', cursive;
+  border-width: 0;
 }
 
-.fa-trash:hover {
-  color: red;
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #ecf0f1;
+  opacity: 1; /* Firefox */
 }
 
-.fa-trash:active{
-  color: #c0392b;
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: #ecf0f1;
 }
 
-.fa-clock {
-  color: #3498db;
+::-ms-input-placeholder { /* Microsoft Edge */
+  color: #ecf0f1;
+}
+/* ==================== */
+
+.tasks-todo {
+  margin-top: 25px;
+  box-shadow: 0px 0px 14px 1px grey;
 }
 </style>
