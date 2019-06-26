@@ -16,7 +16,7 @@
   </div>
   <div class="date">
     <div class="days-left">
-       <i class="far fa-clock clock"> 
+       <i class="far fa-clock clock" :class="isLate"> 
          <span class="date-info">{{date | readableDate}}</span> 
       </i> 
       {{date | daysleft}}
@@ -50,12 +50,28 @@ export default {
   filters: {
     // Return date
     readableDate: function(date) {
-      return date.getDay() + "/" + date.getMonth() + "/" + date.getFullYear();
+      return date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear();
     },
     daysleft: function(date) {
       let today = new Date();
-      let diff = Math.abs(today - date);
+      let diff = date - today;
       return "In " + Math.ceil(diff / (1000 * 60 * 60 * 24)) + " days";
+    }
+  },
+  computed: {
+    isLate() {
+      let today = new Date();
+      let diff = this.date - today;
+      let daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+      if(daysLeft < 1) {
+        return {'passed': true};
+      } else if (daysLeft === 1) {
+        return {'today': true}; 
+      } else if (daysLeft > 1 && daysLeft <= 5) {
+        return {'week': true};
+      } else {
+        return {'away': true};
+      }
     }
   },
   methods: {
@@ -70,7 +86,8 @@ export default {
     },
     removeTask() {
       this.$emit("task-deleted", {id: this.id});
-    }
+    },
+
 
   }
 }
@@ -114,8 +131,20 @@ export default {
 
 .clock {
   position: relative;
-  color: #3498db;
   top: 10px;
+}
+
+.clock.today {
+  color: #f1c40f;
+}
+.clock.week {
+  color: #3498db;
+}
+.clock.away {
+  color: #2ecc71;
+}
+.clock.passed {
+  color: #e74c3c;
 }
 
 .date-info {

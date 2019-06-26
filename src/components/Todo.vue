@@ -20,6 +20,17 @@
             v-model="newTaskDescription"
             autocomplete="off"
             placeholder="E.g. Complete the ToDo app">
+          <div class="select-deadline">
+            <div class="subtract" @click="subtractDays">
+              <i class="fas fa-minus"></i>
+            </div>
+            <div class="days-selection">
+              {{deadline}} <span class="selection-text"> days </span>
+            </div>
+            <div class="add" @click="addDays">
+              <i class="fas fa-plus"></i>
+            </div>
+          </div>
     </form>
     </div>
     <div class="no-content" v-if="tasksCount == 0"> 
@@ -70,18 +81,31 @@ export default {
       tasksDoneCount: 0,
       errorMessage: "",
       isError: false,
-      showInput: false,      
+      showInput: false,
+      deadline: 5,      
     }
   },
   mounted() {
 
     //TODO Make GET request to retrieve data
   
-    let date = new Date('7/13/2019'); // only for testing
+    let date1 = new Date(); // only for testing
+    let date2 = new Date(); // only for testing
+    let date3 = new Date(); // only for testing
+    let date4 = new Date(); // only for testing
+
+    date1.setDate(date1.getDate() + 1);
+    date2.setDate(date2.getDate() + 5);
+    date3.setDate(date3.getDate() + 8);
+    date4.setDate(date4.getDate() - 2);
+
+    console.log(date1);
+
     this.tasksList = [
-        {id: 1, desc: "Lorem ipsum dolor sic amet", status: false, date: date},
-        {id: 2, desc: "Another todo thing", status: false, date: date},
-        {id: 3, desc: "This is getting repetitive", status: true, date: date},
+        {id: 1, desc: "Lorem ipsum dolor sic amet", status: false, date: date1},
+        {id: 2, desc: "Another todo thing", status: false, date: date2},
+        {id: 3, desc: "This is getting repetitive", status: true, date: date3},
+        {id: 4, desc: "This should be expired", status: true, date: date4},
       ];
 
     // Initialize counters
@@ -119,7 +143,7 @@ export default {
         this.errorMessage = "Your task cannot be empty!";
       } else {
         let date = new Date();
-        date.setDate(date.getDate() + 5); // Add 5 days to current date
+        date.setDate(date.getDate() + this.deadline); // Add 5 days to current date
 
         this.tasksList.push({
           id: this.nextId++,
@@ -162,6 +186,22 @@ export default {
     *                                      */
     toggleInput() {
       this.showInput = !this.showInput;
+    },
+    /*                                     *
+    *           Add Days to deadline       *
+    *                                      *
+    *                                      */
+    addDays() {
+      this.deadline++;
+    },
+    /*                                     *
+    *       Subtract Days to deadline      *
+    *                                      *
+    *                                      */
+    subtractDays() {
+      if (this.deadline > 1) {
+        this.deadline--;
+      }
     }
   },
 
@@ -219,6 +259,7 @@ export default {
   bottom: -32px;
   transform: rotate(0deg);
   transition: transform 0.2s ease-in;
+  cursor: pointer;
 }
 
 .toggle-input.active {
@@ -250,7 +291,7 @@ export default {
 }
 
 .input-form.active {
-  height: 100px;
+  height: 150px;
   transition: height 0.5s ease-in;
   overflow: hidden;
 }
@@ -281,6 +322,62 @@ export default {
 
 ::-ms-input-placeholder { /* Microsoft Edge */
   color: #ecf0f1;
+}
+
+.select-deadline {
+  margin-top: 15px;
+  display: flex;
+  position: relative;
+  left: 37%;
+}
+
+.add {
+  float: left;
+  font-size: 40px;
+  margin-left: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+  height: 50px;
+  border-radius: 10px;
+  background-color: #3498db;
+  color: white;
+  cursor: pointer;
+}
+
+.subtract {
+  margin-right: 10px;
+  font-size: 40px;
+  height: 50px;
+  border-radius: 10px;
+  background-color: #3498db;
+  color: white;
+  cursor: pointer;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.add:hover {
+  background-color: #2980b9;
+}
+
+.subtract:hover {
+  background-color: #2980b9;
+}
+
+.add:active {
+  background-color: #2671a3;
+}
+
+.subtract:active {
+  background-color: #2671a3;
+}
+
+.days-selection {
+  font-size: 40px;
+}
+
+.selection-text {
+  font-size: 20px;
 }
 /* ==================== */
 
