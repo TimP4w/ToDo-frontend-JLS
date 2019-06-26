@@ -15,11 +15,8 @@
     </div>
   </div>
   <div class="date">
-    <div>
-       {{date | readable}}
-    </div>
     <div class="days-left">
-       {{date | daysleft}}
+       <i class="far fa-clock"></i> {{date | daysleft}}
     </div>     
   </div>
   <div class="remove">
@@ -53,7 +50,7 @@ export default {
     daysleft: function(value) {
       let today = new Date();
       let diff = Math.abs(today - value);
-      return Math.ceil(diff / (1000 * 60 * 60 * 24)) + " days left";
+      return "In " + Math.ceil(diff / (1000 * 60 * 60 * 24)) + " days";
     }
   },
   methods: {
@@ -96,8 +93,9 @@ export default {
   left: 20px;
   height: 25px;
   width: 25px;
-  border-radius: 10px;
+  border-radius: 20px;
   border-style: solid;
+  border-width: 1;
 }
 
 .check:hover input ~ .task-check {
@@ -130,10 +128,10 @@ export default {
   padding-top: 10px;
   padding-bottom: 10px;
   margin: auto;
-  border-width: 1px 1px 1px 1px;
+  border-width: 0px 0px 1px 0px;
   border-color: black;
   border-style: solid;
-  width: 50%;
+  width: 100%;
   height: 35px;
   content: "";
   clear: both;
@@ -183,5 +181,13 @@ export default {
 
 .fa-trash:hover {
   color: red;
+}
+
+.fa-trash:active{
+  color: #c0392b;
+}
+
+.fa-clock {
+  color: #3498db;
 }
 </style>
