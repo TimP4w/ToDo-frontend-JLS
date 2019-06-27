@@ -1,17 +1,54 @@
 <template>
   <div id="app">
-    <Todo></Todo>
+    <router-view />
   </div>
 </template>
 
 <script>
-import Todo from './components/Todo.vue'
+
 
 export default {
   name: 'app',
   components: {
-    Todo
-  }
+  },
+  data() {
+    return {
+    }
+  },
+  mounted() {
+    
+    if(!this.$store.isAuthenticated) {
+      this.$router.replace({ name: "login"});
+    } 
+
+  },
+  methods: {
+  
+  },
+  computed: {
+    isLoggedIn() {
+      return this.$store.getters.isAuthenticated;
+    },
+    apiError() {
+      return this.$store.state.apiError;
+    }
+  },
+  watch: {
+    isLoggedIn(oldStatus, newStatus) {
+      if(newStatus) {
+        this.$router.replace({ name: "login"});
+      }
+    },
+    apiError(oldError, newError) {
+      let code = oldError;
+      if(code === 401) {
+          this.$store.commit("LOGOUT");
+          this.$store.commit("THROW_ERROR", "Please login again to update your token");
+      } else {
+          this.$store.commit("THROW_ERROR", "Something went wrong");
+      }
+    }
+  },
 }
 </script>
 

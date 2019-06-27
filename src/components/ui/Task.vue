@@ -4,22 +4,22 @@
     <label class="custom-check-wrapper">
       <input type="checkbox"
            id="isDone" 
-           v-model="status"
-           @click="updateTask">
-      <span class="custom-check"> </span>
+           v-model="isDone"  
+           @click="updateTask"> 
+      <span class="custom-check"> </span> 
     </label>
   </div>
-  <div class="description">
-    <div :class="{ 'line-through': status }">
-      <slot></slot>
+  <div class="title">
+    <div :class="{ 'line-through': isDone }">
+      {{task.title}}
     </div>
   </div>
   <div class="date">
     <div class="days-left">
        <i class="far fa-clock clock" :class="isLate"> 
-         <span class="date-info">{{date | readableDate}}</span> 
+         <span class="date-info">{{task.date | readableDate}}</span> 
       </i> 
-      {{date | daysleft}}
+      {{task.date | daysleft}}
     </div>     
   </div>
   <div class="remove">
@@ -29,45 +29,60 @@
     </i>
   </div>
 </div>
-
 </template>
-
 <script>
+
+import moment from 'moment'
+
+
 export default {
   name: 'Task',
   props: {
     id: Number,
-    description: String,
-    date: Date,
-    status: Boolean,
-    index: Number
   },
   data: function () {
     return {
-      toggleRemove: false, 
+      toggleRemove: false,
+      task: Object,
+      isDone: Boolean
     }
+  },
+  mounted() {
+    this.task = this.$store.getters.task(this.id);
+    this.isDone = this.task.done;
   },
   filters: {
     // Return date
     readableDate: function(date) {
-      return date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear();
+      let myDate = moment(date, 'YYYY-MM-DD').toDate();
+      return myDate.getDate() + "/" + (myDate.getMonth() + 1) + "/" + myDate.getFullYear();
     },
     daysleft: function(date) {
+      let myDate = moment(date, 'YYYY-MM-DD').toDate();
       let today = new Date();
-      let diff = date - today;
-      return "In " + Math.ceil(diff / (1000 * 60 * 60 * 24)) + " days";
+      let diff = myDate - today;
+      let days = Math.floor(diff / (1000 * 60 * 60 * 24)) +1;
+
+      if (days < 1 && days !== 0) {
+        return "Overdue by " + Math.abs(days) + (((Math.abs(days) > 1)) ? " days" : " day");
+      } else if (days === 0) {
+        return "Today!"
+      } else if (days > 1) {
+        return "In " + days + " days";
+      }
     }
   },
   computed: {
     isLate() {
+      let myDate = moment(this.task.date, 'YYYY-MM-DD').toDate();
       let today = new Date();
-      let diff = this.date - today;
-      let daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
-      if(daysLeft < 1) {
+      let diff = myDate - today;
+      let daysLeft = Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
+      if(daysLeft < 1 && daysLeft !== 0) {
         return {'passed': true};
-      } else if (daysLeft === 1) {
+      } else if (daysLeft === 0) {
         return {'today': true}; 
-      } else if (daysLeft > 1 && daysLeft <= 5) {
+      } else if (daysLeft > 1 && daysLeft <= 7) {
         return {'week': true};
       } else {
         return {'away': true};
@@ -82,10 +97,20 @@ export default {
       this.toggleRemove = false;
     },
     updateTask() {
-      this.$emit("task-updated", {id: this.id, status: !this.status});
+      let newTask = this.task;
+      newTask.done = !this.task.done;
+      let data = {
+        oldTask: this.task,
+        newTask: newTask
+      }
+      this.$store.dispatch('updateTask', data)
+      .then(updatedTask => {
+        this.task = updatedTask;
+        this.isDone = updatedTask.done;
+      });
     },
     removeTask() {
-      this.$emit("task-deleted", {id: this.id});
+      this.$store.dispatch('deleteTask', this.task);
     },
 
 
@@ -112,7 +137,7 @@ export default {
   border-width: 0px;
 }
 
-.description {
+.title {
   width: 60%;
   float: left;
   clear: both;
