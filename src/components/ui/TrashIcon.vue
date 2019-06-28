@@ -7,34 +7,17 @@
 
 <script>
 export default {
-  name: 'Trash',
-  components: {
-    
-  },
-  props: {
-  },
-  data: function () {
-    return {
-         
-    }
-  },
- 
-  computed: {
-  
-  },
-  methods: {
+  name: 'TrashIcon',
+   methods: {
     clicked() {
       this.$emit("button-clicked");
     },
-
   },
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
-
 .trash {
   font-size: 24px;
   cursor: pointer;

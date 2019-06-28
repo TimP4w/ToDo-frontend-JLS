@@ -1,7 +1,7 @@
 <template>
     <div class="header">
       <div class="logout">
-        <Logout></Logout>
+        <LogoutButton></LogoutButton>
       </div>
       <h1> {{title}} </h1>
       <slot></slot>
@@ -10,17 +10,17 @@
 
 
 <script>
-import Logout from "./Logout.vue"
+import LogoutButton from "./LogoutButton.vue"
 
 export default {
-  name: 'Header',
+  name: 'BaseHeader',
   components: {
-    Logout
+    LogoutButton
   },
   props: {
     title: String,
   },
- 
+
 }
 </script>
 

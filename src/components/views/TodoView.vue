@@ -1,14 +1,14 @@
 <template>
-  <Container>
-    <Header v-bind:title="'My ToDo List'">
+  <BaseContainer>
+    <BaseHeader v-bind:title="'My ToDo List'">
       <p class="task-counter">
         <span class="count">{{tasksDoneCount}}</span> task(s) done out of <span class="count">{{tasksCount}}</span>
       </p>
       <div class="toggleButton">
-        <ToggleOpenCloseButton @button-clicked="toggleInput" v-bind:toggled="showInput"> </ToggleOpenCloseButton>
+        <ToggleButton @button-clicked="toggleInput" v-bind:toggled="showInput"> </ToggleButton>
       </div>
-    </Header>
-    <Error></Error>
+    </BaseHeader>
+    <BaseError></BaseError>
     <div class="input-form" :class="{active: showInput}" >
     <form class="new-task-form" v-on:submit.prevent="addNewTask">
         <input id="description"
@@ -16,48 +16,50 @@
             v-model="newTaskDescription"
             autocomplete="off"
             placeholder="E.g. Complete the ToDo app">
-        <Selectdeadline v-bind:deadline="deadline" @add="addDays" @subtract="subtractDays"> </Selectdeadline>
+        <div class="deadline-selection">
+          <DeadlineSelector v-bind:deadline="deadline" @add="addDays" @subtract="subtractDays"> </DeadlineSelector>
+        </div>
     </form>
     </div>
     <div class="no-content" v-if="tasksCount == 0">
       <h2> There are no tasks yet </h2>
       <span> Start by adding one </span>
     </div>
-    <div class="tasks-todo">
-      <Task v-for="task in tasksTodo"
-          v-bind:id="task.id"
-          v-bind:key="task.id"
-          > {{ task.desc }} </Task>
+    <div v-if="tasksTodo.length > 0" class="tasks-todo">
+      <BaseTask v-for="task in tasksTodo"
+                v-bind:id="task.id"
+                v-bind:key="task.id"
+          > {{ task.desc }} </BaseTask>
     </div>
     <div class="tasks-done">
-      <Task v-for="task in tasksDone"
-          v-bind:id="task.id"
-          v-bind:key="task.id"
-          > {{ task.desc }} </Task>
+      <BaseTask v-for="task in tasksDone"
+                v-bind:id="task.id"
+                v-bind:key="task.id"
+          > {{ task.desc }} </BaseTask>
     </div>
-  </Container>
+  </BaseContainer>
 </template>
 
 
 <script>
-import Task from '../ui/Task.vue'
-import Header from '../ui/Header.vue'
-import Error from '../ui/Error.vue'
-import Container from '../ui/Container.vue'
-import ToggleOpenCloseButton from '../ui/ToggleOpenCloseButton.vue'
-import Selectdeadline from '../ui/Selectdeadline.vue'
+import BaseTask from '../ui/BaseTask.vue'
+import BaseHeader from '../ui/BaseHeader.vue'
+import BaseError from '../ui/BaseError.vue'
+import BaseContainer from '../ui/BaseContainer.vue'
+import ToggleButton from '../ui/ToggleButton.vue'
+import DeadlineSelector from '../ui/DeadlineSelector.vue'
 import moment from 'moment'
 import {mapGetters, mapActions, mapMutations} from 'vuex'
 
 export default {
-  name: 'Todo',
+  name: 'TodoView',
   components: {
-    Task,
-    Header,
-    Error,
-    Container,
-    ToggleOpenCloseButton,
-    Selectdeadline
+    BaseTask,
+    BaseHeader,
+    BaseError,
+    BaseContainer,
+    ToggleButton,
+    DeadlineSelector
   },
   props: {
   },
@@ -97,19 +99,13 @@ export default {
       if (this.newTaskDescription === "") {
         this.THROW_ERROR("Your task cannot be empty!");
       } else {
-        let date = new Date();
-        date.setDate(date.getDate() + this.deadline);
-        let formattedDate = moment(date).format("YYYY-MM-DD");
-
+        let date = moment().add(this.deadline, "days").format("YYYY-MM-DD");
         let task = {
           description: this.newTaskDescription ,
-          date: formattedDate,
+          date: date,
         };
-
         this.postNewTask(task);
-
         this.newTaskDescription = ""
-
       }
     },
     toggleInput() {
@@ -188,5 +184,10 @@ export default {
   position: absolute;
   left: 48%;
   top: 8.8rem;
+}
+
+.deadline-selection {
+  position: static;
+  left: 0rem;
 }
 </style>

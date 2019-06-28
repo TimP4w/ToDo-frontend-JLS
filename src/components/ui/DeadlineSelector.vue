@@ -15,21 +15,21 @@
 
 <script>
 export default {
-  name: 'Selectdeadline',
+  name: 'DeadlineSelector',
   components: {
-    
+
   },
   props: {
       deadline: Number,
   },
   data: function () {
     return {
-         
+
     }
   },
- 
+
   computed: {
-  
+
   },
   methods: {
       addDays() {
@@ -38,10 +38,10 @@ export default {
       subtractDays() {
           this.$emit("subtract");
       }
-      
+
   },
 
-  
+
 }
 </script>
 

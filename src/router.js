@@ -1,28 +1,27 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-
-import Todo from './components/views/Todo.vue'
-import Login from './components/views/Login.vue'
+import TodoView from './components/views/TodoView.vue'
+import LoginView from './components/views/LoginView.vue'
 
 Vue.use(Router)
 
 export const router = new Router({
     routes: [
         {
-            path: '/',
+            path: "/",
             redirect: {
-                name: "login" // change with login
+                name: "LoginView"
             }
         },
         {
             path: "/login",
-            name: "login",
-            component: Login
-        }, 
+            name: "LoginView",
+            component: LoginView
+        },
         {
             path: "/todo",
-            name: "todo",
-            component: Todo
+            name: "TodoView",
+            component: TodoView
         }
     ]
 })

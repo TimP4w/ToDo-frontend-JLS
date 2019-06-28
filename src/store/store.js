@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import {fetchTasks, postTask, updateTask, deleteTask, login} from '../helpers/api';
+import { fetchTasks, postTask, updateTask, deleteTask } from '../resources/todo.resource'
+import { login } from '../resources/auth.resource'
 
 Vue.use(Vuex)
 
@@ -12,7 +13,7 @@ export const store = new Vuex.Store({
         authToken: "",
         authenticated: false,
     },
-    
+
     mutations: {
         ADD_TASK(state, task) {
             state.tasksList.push(task);
@@ -38,43 +39,37 @@ export const store = new Vuex.Store({
         LOGIN(state, token) {
             state.authToken = token;
             state.authenticated = true;
+            localStorage.setItem("token", token);
         },
         LOGOUT(state) {
             state.authToken = "";
             state.authenticated = false;
-            localStorage.setItem('token', "");
+            localStorage.setItem("token", "");
         },
         PUSH_API_ERROR(state, e) {
             state.apiError = e;
         }
     },
 
-
     getters: {
-        allTasks(state) {
+        allTasks(state)  {
             return state.tasksList;
         },
         tasksDone(state) {
-            return state.tasksList.filter(function(task) {
-                return task.done === true
-              });
+            return state.tasksList.filter(task => task.done === true);
         },
         tasksTodo(state) {
-            return state.tasksList.filter(function(task) {
-                return task.done !== true
-              });
+            return state.tasksList.filter(task => task.done !== true);
         },
-        task: (state) => (id) => {   
+        task: (state) => (id) => {
             return state.tasksList.find(task => task.id === id);
         },
         tasksDoneCount(state) {
-            return state.tasksList.filter(function(task) {
-                return task.done === true
-              }).length;
+            return state.tasksList.filter(task => task.done === true).length;
         },
         tasksCount(state) {
             return state.tasksList.length;
-        }, 
+        },
         isError(state) {
             return state.isError;
         },
@@ -88,14 +83,11 @@ export const store = new Vuex.Store({
             return state.authenticated;
         }
     },
-
-
-
     actions: {
-        postNewTask(context, task) {
+        postNewTask(context, BaseTask) {
             let data = {
-                "title": task.description,
-                "date": task.date
+                "title": BaseTask.description,
+                "date": BaseTask.date
             }
             return postTask(data).then(response => {
                 context.commit("ADD_TASK", response.data);
@@ -114,17 +106,16 @@ export const store = new Vuex.Store({
             }
             return updateTask(data.oldTask.id, payload);
         },
-        deleteTask(context, task) {
-            return deleteTask(task.id).then(response => {
+        deleteTask(context, BaseTask) {
+            return deleteTask(BaseTask.id).then(response => {
                 if(response.status === 201) {
-                    context.commit("DELETE_TASK", task);
-                }                
+                    context.commit("DELETE_TASK", BaseTask);
+                }
             });
         },
         doLogin(context, credentials) {
             return login(credentials).then(response => {
                 context.commit("LOGIN", response.data.token);
-                localStorage.setItem("token", response.data.token);
             });
         }
     },

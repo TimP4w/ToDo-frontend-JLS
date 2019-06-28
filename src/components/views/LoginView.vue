@@ -1,41 +1,41 @@
 <template>
-  <Container>
-    <Header v-bind:title="'Login'"></Header>
-    <Error></Error>
+  <BaseContainer>
+    <BaseHeader v-bind:title="'LoginView'"></BaseHeader>
+    <BaseError></BaseError>
     <form class="new-task-form" v-on:submit.prevent="login">
       <div class="user">
-        <InputField 
-          type="text" 
+        <BaseInput
+          type="text"
           v-model="username"
-          placeholder="jls-2"> </InputField>
+          placeholder="jls-2"> </BaseInput>
       </div>
       <div class="pass">
-        <InputField 
-              type="password" 
-              v-model="password"></InputField>
+        <BaseInput
+              type="password"
+              v-model="password"></BaseInput>
       </div>
-      <BlueButton></BlueButton>
+      <BlueButton>Login</BlueButton>
     </form>
-  </Container>
+  </BaseContainer>
 </template>
 
 
 <script>
-import Header from '../ui/Header.vue'
-import Error from '../ui/Error.vue'
-import Container from '../ui/Container.vue'
-import InputField from '../ui/InputField.vue'
+import BaseHeader from '../ui/BaseHeader.vue'
+import BaseError from '../ui/BaseError.vue'
+import BaseContainer from '../ui/BaseContainer.vue'
+import BaseInput from '../ui/BaseInput.vue'
 import BlueButton from '../ui/BlueButton.vue'
 import { mapMutations, mapActions } from 'vuex'
 
 export default {
-  name: 'Login',
-  
+  name: 'LoginView',
+
   components: {
-    Header,
-    Error,
-    Container,
-    InputField,
+    BaseHeader,
+    BaseError,
+    BaseContainer,
+    BaseInput,
     BlueButton
   },
 
@@ -52,7 +52,7 @@ export default {
     let token = localStorage.getItem("token")
     if(token) {
         this.LOGIN(token);
-        this.$router.replace({ name: "todo" });
+        this.$router.replace({ name: "TodoView" });
     }
   },
 
@@ -74,7 +74,7 @@ export default {
           }
           this.doLogin(credentials)
           .then(response => {
-            this.$router.replace({ name: "todo" });
+            this.$router.replace({ name: "TodoView" });
             return response;
           }).catch(e => {
             if(e.response.status === 401) {
@@ -83,9 +83,9 @@ export default {
           });
         }
       },
-  
+
   },
-  
+
 }
 </script>
 

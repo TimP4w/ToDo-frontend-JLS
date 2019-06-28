@@ -3,10 +3,10 @@
   <div class="done-box">
     <label class="custom-check-wrapper">
       <input type="checkbox"
-           id="isDone" 
-           v-model="isDone"  
-           @click="update"> 
-      <span class="custom-check"> </span> 
+           id="isDone"
+           v-model="isDone"
+           @click="update">
+      <span class="custom-check"> </span>
     </label>
   </div>
   <div class="title">
@@ -16,28 +16,28 @@
   </div>
   <div class="date">
     <div class="days-left">
-       <i class="far fa-clock clock" :class="isLate"> 
-         <span class="date-info">{{ currentTask.date | readableDate }}</span> 
-      </i> 
+       <i class="far fa-clock clock" :class="isLate" >
+         <span class="date-info">{{ currentTask.date | readableDate }}</span>
+      </i>
       {{ currentTask.date | daysleft }}
-    </div>     
+    </div>
   </div>
   <div class="remove">
-    <Trash @button-clicked="removeTask"></Trash>
+    <TrashIcon @button-clicked="removeTask"></TrashIcon>
   </div>
 </div>
 </template>
 <script>
 
-import moment from 'moment'
-import Trash from './Trash.vue'
-import { mapGetters, mapActions } from 'vuex'
+import moment from "moment"
+import TrashIcon from "./TrashIcon.vue"
+import { mapGetters, mapActions } from "vuex"
 
 
 export default {
-  name: 'Task',
+  name: "BaseTask",
   components: {
-    Trash
+    TrashIcon
   },
   props: {
     id: Number,
@@ -46,7 +46,8 @@ export default {
     return {
       toggleRemove: false,
       currentTask: Object,
-      isDone: Boolean
+      isDone: Boolean,
+      isShowDate: false
     }
   },
   mounted() {
@@ -59,18 +60,7 @@ export default {
       return moment(date).format("DD/MM/YYYY");
     },
     daysleft: function(date) {
-      let myDate = moment(date, 'YYYY-MM-DD').toDate();
-      let today = new Date();
-      let diff = myDate - today;
-      let days = Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
-
-      if (days < 1 && days !== 0) {
-        return "Overdue by " + Math.abs(days) + (((Math.abs(days) > 1)) ? " days" : " day");
-      } else if (days === 0) {
-        return "Today!"
-      } else if (days > 1) {
-        return "In " + days + " days";
-      }
+      return moment(date).endOf("day").fromNow();
     }
   },
   computed: {
@@ -79,18 +69,18 @@ export default {
     ]),
 
     isLate() {
-      let myDate = moment(this.currentTask.date, 'YYYY-MM-DD').toDate();
+      let myDate = moment(this.currentTask.date, "YYYY-MM-DD").toDate();
       let today = new Date();
       let diff = myDate - today;
       let daysLeft = Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
       if(daysLeft < 1 && daysLeft !== 0) {
-        return {'passed': true};
+        return {"passed": true};
       } else if (daysLeft === 0) {
-        return {'today': true}; 
+        return {"today": true};
       } else if (daysLeft > 1 && daysLeft <= 7) {
-        return {'week': true};
+        return {"week": true};
       } else {
-        return {'away': true};
+        return {"away": true};
       }
     }
   },
@@ -119,13 +109,29 @@ export default {
     },
     removeTask() {
       this.deleteTask(this.currentTask);
+    },
+    showDate() {
+      this.isShowDate = true;
+    },
+    hideDate() {
+      this.isShowDate = false;
     }
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+/* Special Properties */
+.hidden {
+  opacity: 0;
+}
+
+.line-through {
+  text-decoration-line: line-through;
+  color: grey;
+}
+/* Special Properties END */
+
 .task {
   display: flex;
   padding-top: 10px;
@@ -153,7 +159,6 @@ export default {
 .date {
   width: 30%;
   float: left;
-
 }
 
 .days-left {
@@ -164,7 +169,6 @@ export default {
   position: relative;
   top: 10px;
 }
-
 .clock.today {
   color: #f1c40f;
 }
@@ -196,18 +200,6 @@ export default {
   position: relative;
   bottom: 8px;
 }
-
-
-/* Special Properties */
-.hidden {
-  opacity: 0;
-}
-
-.line-through {
-  text-decoration-line: line-through;
-  color: grey;
-}
-/* Special Properties END */
 
 /* https://www.w3schools.com/howto/howto_css_custom_checkbox.asp */
 .custom-check-wrapper {

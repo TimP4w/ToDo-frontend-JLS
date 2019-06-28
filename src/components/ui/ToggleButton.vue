@@ -7,21 +7,21 @@
 
 <script>
 export default {
-  name: 'ToggleOpenCloseButton',
+  name: 'ToggleButton',
   components: {
-    
+
   },
   props: {
       toggled: Boolean,
   },
   data: function () {
     return {
-         
+
     }
   },
- 
+
   computed: {
-  
+
   },
   methods: {
     toggle() {
@@ -58,7 +58,7 @@ export default {
 }
 
 .toggle-input:active {
-  background-color: #c0392b;  
+  background-color: #c0392b;
 }
 
 .plus {

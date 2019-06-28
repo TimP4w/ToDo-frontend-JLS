@@ -13,8 +13,8 @@
 import { mapGetters, mapMutations } from 'vuex'
 
 export default {
-  name: 'Error',
- 
+  name: 'BaseError',
+
   computed: {
     ...mapGetters([
       "errorMessage",

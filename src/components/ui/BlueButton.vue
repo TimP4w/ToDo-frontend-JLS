@@ -1,25 +1,11 @@
 <template>
-      <button class="blue-button"> Login </button>
+      <button class="blue-button"> <slot></slot> </button>
 </template>
 
 
 <script>
 export default {
   name: 'BlueButton',
-  components: {
-
-  },
-  props: {
-  },
-  data: function () {
-    return {
-
-    }
-  },
-
-  computed: {
-
-  },
   methods: {
     clicked() {
       this.$emit("button-clicked");

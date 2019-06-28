@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import Todo from '../src/components/views/Todo.vue'
+import TodoView from '../src/components/views/TodoView.vue'
 
 
 function getTaskDescription(Component, propsData) {
@@ -8,9 +8,9 @@ function getTaskDescription(Component, propsData) {
     return vm.$el.textContent;
 }
 
-describe('Todo', () => {
+describe('TodoView', () => {
     it('Renders correctly with different props', () => {
-        expect(getRenderedText(Todo, {
+        expect(getRenderedText(TodoView, {
             task: {
                 id: 1,
                 text: "Hello",

@@ -10,25 +10,11 @@
 <script>
 
 export default {
-  name: "InputField",
-  components: {
-    
-  },
+  name: "BaseInput",
   props: {
       type: String,
       placeholder: String
-  },
-  data: function () {
-    return {
-         
-    }
-  },
- 
-  computed: {
-  
   }
-
-  
 }
 </script>
 

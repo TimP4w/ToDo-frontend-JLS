@@ -1,12 +1,12 @@
 <template>
-    <span v-if="routeName !== 'login'" class="logout" @click="LOGOUT">logout</span>
+    <span v-if="routeName !== 'LoginView'" class="logout" @click="LOGOUT">logout</span>
 </template>
 
 <script>
 import { mapMutations } from 'vuex'
 
 export default {
-  name: 'Logout',
+  name: 'LogoutButton',
   methods: {
       ...mapMutations([
         "LOGOUT"
@@ -21,9 +21,11 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .logout {
   cursor: pointer;
+}
+.logout:hover {
+  color: black;
 }
 </style>

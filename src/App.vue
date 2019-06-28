@@ -17,14 +17,14 @@ export default {
     }
   },
   mounted() {
-    
+
     if(!this.isAuthenticated) {
-      this.$router.replace({ name: "login"});
-    } 
+      this.$router.replace({ name: "LoginView"});
+    }
 
   },
   methods: {
-  
+
   },
   computed: {
     ...mapGetters([
@@ -38,7 +38,7 @@ export default {
   watch: {
     isLoggedIn(oldStatus, newStatus) {
       if(newStatus) {
-        this.$router.replace({ name: "login"});
+        this.$router.replace({ name: "LoginView"});
       }
     }
   },
