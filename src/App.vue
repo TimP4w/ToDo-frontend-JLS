@@ -6,6 +6,7 @@
 
 <script>
 
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'app',
@@ -17,7 +18,7 @@ export default {
   },
   mounted() {
     
-    if(!this.$store.isAuthenticated) {
+    if(!this.isAuthenticated) {
       this.$router.replace({ name: "login"});
     } 
 
@@ -26,26 +27,18 @@ export default {
   
   },
   computed: {
+    ...mapGetters([
+      "isAuthenticated",
+
+    ]),
     isLoggedIn() {
-      return this.$store.getters.isAuthenticated;
+      return this.isAuthenticated;
     },
-    apiError() {
-      return this.$store.state.apiError;
-    }
   },
   watch: {
     isLoggedIn(oldStatus, newStatus) {
       if(newStatus) {
         this.$router.replace({ name: "login"});
-      }
-    },
-    apiError(oldError, newError) {
-      let code = oldError;
-      if(code === 401) {
-          this.$store.commit("LOGOUT");
-          this.$store.commit("THROW_ERROR", "Please login again to update your token");
-      } else {
-          this.$store.commit("THROW_ERROR", "Something went wrong");
       }
     }
   },

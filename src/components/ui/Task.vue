@@ -5,21 +5,21 @@
       <input type="checkbox"
            id="isDone" 
            v-model="isDone"  
-           @click="updateTask"> 
+           @click="update"> 
       <span class="custom-check"> </span> 
     </label>
   </div>
   <div class="title">
     <div :class="{ 'line-through': isDone }">
-      {{task.title}}
+      {{currentTask.title}}
     </div>
   </div>
   <div class="date">
     <div class="days-left">
        <i class="far fa-clock clock" :class="isLate"> 
-         <span class="date-info">{{task.date | readableDate}}</span> 
+         <span class="date-info">{{currentTask.date | readableDate}}</span> 
       </i> 
-      {{task.date | daysleft}}
+      {{currentTask.date | daysleft}}
     </div>     
   </div>
   <div class="remove">
@@ -33,6 +33,7 @@
 <script>
 
 import moment from 'moment'
+import { mapGetters, mapActions } from 'vuex'
 
 
 export default {
@@ -43,13 +44,13 @@ export default {
   data: function () {
     return {
       toggleRemove: false,
-      task: Object,
+      currentTask: Object,
       isDone: Boolean
     }
   },
   mounted() {
-    this.task = this.$store.getters.task(this.id);
-    this.isDone = this.task.done;
+    this.currentTask = this.task(this.id);
+    this.isDone = this.currentTask.done;
   },
   filters: {
     // Return date
@@ -73,8 +74,12 @@ export default {
     }
   },
   computed: {
+    ...mapGetters([
+      "task",
+    ]),
+
     isLate() {
-      let myDate = moment(this.task.date, 'YYYY-MM-DD').toDate();
+      let myDate = moment(this.currentTask.date, 'YYYY-MM-DD').toDate();
       let today = new Date();
       let diff = myDate - today;
       let daysLeft = Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
@@ -90,27 +95,30 @@ export default {
     }
   },
   methods: {
+    ...mapActions([
+      "updateTask",
+      "deleteTask"
+    ]),
     showRemove() {
       this.toggleRemove = true;
     },
     hideRemove() {
       this.toggleRemove = false;
     },
-    updateTask() {
-      let newTask = this.task;
-      newTask.done = !this.task.done;
+    update() {
+      let newTask = this.currentTask;
+      newTask.done = !this.currentTask.done;
       let data = {
-        oldTask: this.task,
+        oldTask: this.currentTask,
         newTask: newTask
       }
-      this.$store.dispatch('updateTask', data)
-      .then(updatedTask => {
-        this.task = updatedTask;
+      this.updateTask(data).then(updatedTask => {
+        this.currentTask = updatedTask;
         this.isDone = updatedTask.done;
       });
     },
     removeTask() {
-      this.$store.dispatch('deleteTask', this.task);
+      this.deleteTask(this.currentTask);
     },
 
 

@@ -1,14 +1,15 @@
 <template>
   <div>
-    <div class="error" v-if="$store.getters.isError">
+    <div class="error" v-if="isError">
       <h3> Oops. </h3>
-      <span>{{$store.getters.errorMessage}}</span>
+      <span>{{errorMessage}}</span>
     </div>
   </div>
 </template>
 
 
 <script>
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Error',
@@ -24,7 +25,10 @@ export default {
   },
  
   computed: {
-  
+    ...mapGetters([
+      "errorMessage",
+      "isError",
+    ]),
   },
   methods: {
   

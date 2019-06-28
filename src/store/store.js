@@ -1,8 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { stat } from 'fs';
-import axios from 'axios';
-import * as api from '../api.js';
+import {fetchTasks, postTask, updateTask, deleteTask, login} from '../api';
 
 Vue.use(Vuex)
 
@@ -14,7 +12,6 @@ export const store = new Vuex.Store({
         errorMessage: "",
         authToken: "",
         authenticated: false,
-        apiError: Object,
     },
     
     mutations: {
@@ -97,90 +94,37 @@ export const store = new Vuex.Store({
 
     actions: {
         postNewTask(context, task) {
-            return new Promise((resolve, reject) => {
-                let data = {
-                        "title": task.description,
-                        "date": task.date
-                }
-                axios.post("https://todo-backend.jls.digital/api/v1/todo", data, api.config(this.state.authToken))
-                .then(response => {
-                    context.commit("ADD_TASK", response.data);
-                    context.commit("QUIT_ERROR");
-                    resolve(response);
-                })
-                .catch(e => {
-                    context.commit("PUSH_API_ERROR", e.response.status);
-                    reject(e);
-                });
+            let data = {
+                "title": task.description,
+                "date": task.date
+            }
+            return postTask(data).then(response => {
+                context.commit("ADD_TASK", response.data);
             })
-
         },
         getTasks(context) {
-            return new Promise((resolve, reject) => {
-                axios.get("https://todo-backend.jls.digital/api/v1/todo", api.config(this.state.authToken))
-                .then(response => {
-                    context.commit("SET_TASKS", response.data);
-                    context.commit("QUIT_ERROR");
-
-                    resolve(response);
-                })
-                .catch(e => {
-                    context.commit("PUSH_API_ERROR", e.response.status);
-                    reject(e);
-                })
+            return fetchTasks().then(response => {
+                context.commit("SET_TASKS", response.data);
             });
-  
         },
         updateTask(context, data) {
-            return new Promise((resolve, reject) => {
-                let payload = {
-                        "title": data.newTask.description,
-                        "date": data.newTask.date,
-                        "done": data.newTask.done
-                }
-                axios.patch("https://todo-backend.jls.digital/api/v1/todo/" + data.oldTask.id, payload, api.config(this.state.authToken))
-                .then(response => {
-                    context.commit("QUIT_ERROR");
-                    resolve(data.newTask);
-                })
-                .catch(e => {
-                    context.commit("PUSH_API_ERROR", e.response.status);
-                    reject(e);
-                });
-            })
+            let payload = {
+                    "title": data.newTask.description,
+                    "date": data.newTask.date,
+                    "done": data.newTask.done
+            }
+            return updateTask(data.oldTask.id, payload);
         },
         deleteTask(context, task) {
-            return new Promise((resolve, reject) => {
-                axios.delete("https://todo-backend.jls.digital/api/v1/todo/" + task.id, api.config(this.state.authToken))
-                .then(response => {
-                    context.commit("DELETE_TASK", task);
-                    context.commit("QUIT_ERROR");
-                    resolve(task);
-                })
-                .catch(e => {
-                    context.commit("PUSH_API_ERROR", e.response.status);
-                    reject(e);
-                });
-            })
+            return deleteTask(task.id).then(response => {
+                context.commit("DELETE_TASK", task);
+            });
         },
         doLogin(context, credentials) {
-            return new Promise((resolve, reject) => {
-                axios.post("https://todo-backend.jls.digital/api/v1/auth/login", {
-                    "username": credentials.username,
-                    "password": credentials.password
-                })
-                .then(response => {
-                    context.commit("LOGIN", response.data.token);
-                    localStorage.setItem("token", response.data.token);
-                    context.commit("QUIT_ERROR");
-                    resolve();
-
-                })
-                .catch(e => {
-                    context.commit("PUSH_API_ERROR", e.response.status);
-                    reject(e);
-                })
-            })
+            return login(credentials).then(response => {
+                context.commit("LOGIN", response.data.token);
+                localStorage.setItem("token", response.data.token);
+            });
         }
     },
 })

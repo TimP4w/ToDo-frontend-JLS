@@ -1,21 +1,20 @@
 <template>
-  <div>
-    <div class="error" v-if="$store.getters.isError">
-      <h3> Oops. </h3>
-      <span>{{$store.getters.errorMessage}}</span>
-    </div>
-  </div>
+  <input :type="type"
+        :placeholder="placeholder"
+        @input="$emit('input', $event.target.value)">
 </template>
 
 
 <script>
 
 export default {
-  name: 'Error',
+  name: "InputField",
   components: {
     
   },
   props: {
+      type: String,
+      placeholder: String
   },
   data: function () {
     return {
@@ -25,21 +24,13 @@ export default {
  
   computed: {
   
-  },
-  methods: {
-  
-  },
+  }
 
   
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
-.error {
-  margin-bottom: 10px;
-  background-color: #e74c3c;
-  color: white;
-}
+
 </style>

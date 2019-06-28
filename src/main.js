@@ -2,6 +2,10 @@ import Vue from 'vue'
 import App from './App.vue'
 import { store } from './store/store'
 import { router } from './router'
+import {requestInterceptor, responseInterceptor} from './api'
+
+requestInterceptor();
+responseInterceptor();
 
 Vue.config.productionTip = false
 

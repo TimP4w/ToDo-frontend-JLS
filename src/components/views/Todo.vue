@@ -2,7 +2,7 @@
   <Container>
     <Header v-bind:title="'My ToDo List'">
       <p class="task-counter"> 
-        <span class="count">{{$store.getters.tasksDoneCount}}</span> task(s) done out of <span class="count">{{$store.getters.tasksCount}}</span> 
+        <span class="count">{{tasksDoneCount}}</span> task(s) done out of <span class="count">{{tasksCount}}</span> 
       </p>
       <ToggleOpenCloseButton @button-clicked="toggleInput" v-bind:toggled="showInput"> </ToggleOpenCloseButton>
       <Logout></Logout>
@@ -18,18 +18,18 @@
         <Selectdeadline v-bind:deadline="deadline" @add="addDays" @subtract="subtractDays"> </Selectdeadline>
     </form>
     </div>
-    <div class="no-content" v-if="$store.getters.tasksCount == 0"> 
+    <div class="no-content" v-if="tasksCount == 0"> 
       <h2> There are no tasks yet </h2>
       <span> Start by adding one </span>
     </div>
     <div class="tasks-todo">
-      <Task v-for="task in $store.getters.tasksTodo"
+      <Task v-for="task in tasksTodo"
           v-bind:id="task.id" 
           v-bind:key="task.id"
       > {{ task.desc }} </Task>
     </div>
     <div class="tasks-done">
-      <Task v-for="task in $store.getters.tasksDone" 
+      <Task v-for="task in tasksDone" 
           v-bind:id="task.id" 
           v-bind:key="task.id"
           > {{ task.desc }} </Task>
@@ -47,6 +47,7 @@ import Container from '../ui/Container.vue'
 import ToggleOpenCloseButton from '../ui/ToggleOpenCloseButton.vue'
 import Selectdeadline from '../ui/Selectdeadline.vue'
 import moment from 'moment'
+import {mapGetters, mapActions, mapMutations} from 'vuex'
 
 export default {
   name: 'Todo',
@@ -69,27 +70,33 @@ export default {
     }
   },
   mounted() {
-    if(this.$store.getters.authToken) {
-      this.$store.dispatch("getTasks");
+    if(this.authToken) {
+      this.getTasks();
     }
 
   },
   //Filtered lists methods
   computed: {
-    tasksDoneList() {
-      return this.$store.getters.tasksDone;
-    },
-    tasksTodoList() {
-      return this.tasksList.filter(function(task) {
-        return task.status !== true
-      });
-    }
+    ...mapGetters([
+      "tasksDone",
+      "tasksTodo",
+      "tasksCount",
+      "tasksDoneCount",
+      "authToken"
+    ]),
   },
   methods: {
+    ...mapActions([
+      "getTasks",
+      "postNewTask"
+    ]),
+    ...mapMutations([
+      "THROW_ERROR"
+    ]),
     addNewTask() {
       //Check if input is empty
       if (this.newTaskDescription === "") {
-        this.$store.commit("THROW_ERROR", "Your task cannot be empty!");
+        this.THROW_ERROR("Your task cannot be empty!");
       } else {
         let date = new Date();
         date.setDate(date.getDate() + this.deadline);
@@ -100,10 +107,7 @@ export default {
           date: formattedDate,
         };
 
-        this.$store.dispatch("postNewTask", task)
-        .catch(e => {
-          this.$store.commit("THROW_ERROR", "Something went wrong");
-        });
+        this.postNewTask(task);
 
         this.newTaskDescription = ""
 
