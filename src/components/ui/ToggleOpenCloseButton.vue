@@ -6,7 +6,6 @@
 
 
 <script>
-
 export default {
   name: 'ToggleOpenCloseButton',
   components: {
@@ -30,8 +29,6 @@ export default {
     },
 
   },
-
-  
 }
 </script>
 
@@ -39,15 +36,12 @@ export default {
 <style scoped>
 
 .toggle-input {
-  position: relative;
   background-color: #c0392b;
-  border-radius: 30px;
+  border-radius: 25px;
   width: 3rem;
   height: 3rem;
   font-size: 30px;
   align-content: center;
-  left: 13.5rem;
-  bottom: -3rem;
   transform: rotate(0deg);
   transition: transform 0.2s ease-in;
   cursor: pointer;
@@ -69,7 +63,6 @@ export default {
 
 .plus {
   position: relative;
-  top: 12%;
-  
+  top: 0.4rem;
 }
 </style>

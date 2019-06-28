@@ -23,5 +23,6 @@ export default {
   overflow: auto;
   padding-bottom: 50px;
   margin-bottom: 50px;
+  overflow: hidden;
 }
 </style>

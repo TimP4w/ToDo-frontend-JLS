@@ -1,24 +1,21 @@
 <template>
   <Container>
-    <Header v-bind:title="'Login'">
-
-    </Header>
+    <Header v-bind:title="'Login'"></Header>
     <Error></Error>
     <form class="new-task-form" v-on:submit.prevent="login">
-    <div class="user">
-      <InputField 
-        type="text" 
-        v-model="username"
-        placeholder="jls-2"> </InputField >
-    </div>
-
-    <div class="pass">
-      <InputField 
-            type="password" 
-            v-model="password"></InputField>
-    </div>
-    <button> Login </button>
-</form>
+      <div class="user">
+        <InputField 
+          type="text" 
+          v-model="username"
+          placeholder="jls-2"> </InputField>
+      </div>
+      <div class="pass">
+        <InputField 
+              type="password" 
+              v-model="password"></InputField>
+      </div>
+      <BlueButton></BlueButton>
+    </form>
   </Container>
 </template>
 
@@ -28,6 +25,7 @@ import Header from '../ui/Header.vue'
 import Error from '../ui/Error.vue'
 import Container from '../ui/Container.vue'
 import InputField from '../ui/InputField.vue'
+import BlueButton from '../ui/BlueButton.vue'
 import { mapMutations, mapActions } from 'vuex'
 
 export default {
@@ -37,7 +35,8 @@ export default {
     Header,
     Error,
     Container,
-    InputField
+    InputField,
+    BlueButton
   },
 
   data: function () {
@@ -76,6 +75,7 @@ export default {
           this.doLogin(credentials)
           .then(response => {
             this.$router.replace({ name: "todo" });
+            return response;
           }).catch(e => {
             if(e.response.status === 401) {
               this.THROW_ERROR("Wrong username or password");
@@ -90,5 +90,11 @@ export default {
 </script>
 
 <style scoped>
+
+.tasks-todo {
+  margin-top: 25px;
+  box-shadow: 0px 0px 14px 1px grey;
+}
+
 
 </style>

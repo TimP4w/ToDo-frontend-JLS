@@ -1,12 +1,11 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import {fetchTasks, postTask, updateTask, deleteTask, login} from '../api';
+import {fetchTasks, postTask, updateTask, deleteTask, login} from '../helpers/api';
 
 Vue.use(Vuex)
 
 export const store = new Vuex.Store({
     state: {
-        nextId: 0,
         tasksList: [],
         isError: false,
         errorMessage: "",
@@ -117,7 +116,9 @@ export const store = new Vuex.Store({
         },
         deleteTask(context, task) {
             return deleteTask(task.id).then(response => {
-                context.commit("DELETE_TASK", task);
+                if(response.status === 201) {
+                    context.commit("DELETE_TASK", task);
+                }                
             });
         },
         doLogin(context, credentials) {

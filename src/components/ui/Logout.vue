@@ -1,5 +1,5 @@
 <template>
-    <span class="logout" @click="LOGOUT">logout</span>
+    <span v-if="routeName !== 'login'" class="logout" @click="LOGOUT">logout</span>
 </template>
 
 <script>
@@ -10,8 +10,14 @@ export default {
   methods: {
       ...mapMutations([
         "LOGOUT"
-      ])
+      ]),
   },
+  computed: {
+    routeName() {
+      return this.$router.currentRoute.name;
+
+    }
+  }
 }
 </script>
 
@@ -19,8 +25,5 @@ export default {
 <style scoped>
 .logout {
   cursor: pointer;
-  position:relative;
-  bottom: 12rem;
-  left: 12rem;
 }
 </style>

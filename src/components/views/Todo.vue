@@ -1,36 +1,37 @@
 <template>
   <Container>
     <Header v-bind:title="'My ToDo List'">
-      <p class="task-counter"> 
-        <span class="count">{{tasksDoneCount}}</span> task(s) done out of <span class="count">{{tasksCount}}</span> 
+      <p class="task-counter">
+        <span class="count">{{tasksDoneCount}}</span> task(s) done out of <span class="count">{{tasksCount}}</span>
       </p>
-      <ToggleOpenCloseButton @button-clicked="toggleInput" v-bind:toggled="showInput"> </ToggleOpenCloseButton>
-      <Logout></Logout>
+      <div class="toggleButton">
+        <ToggleOpenCloseButton @button-clicked="toggleInput" v-bind:toggled="showInput"> </ToggleOpenCloseButton>
+      </div>
     </Header>
     <Error></Error>
     <div class="input-form" :class="{active: showInput}" >
     <form class="new-task-form" v-on:submit.prevent="addNewTask">
-        <input id="description" 
-            type="text" 
+        <input id="description"
+            type="text"
             v-model="newTaskDescription"
             autocomplete="off"
             placeholder="E.g. Complete the ToDo app">
         <Selectdeadline v-bind:deadline="deadline" @add="addDays" @subtract="subtractDays"> </Selectdeadline>
     </form>
     </div>
-    <div class="no-content" v-if="tasksCount == 0"> 
+    <div class="no-content" v-if="tasksCount == 0">
       <h2> There are no tasks yet </h2>
       <span> Start by adding one </span>
     </div>
     <div class="tasks-todo">
       <Task v-for="task in tasksTodo"
-          v-bind:id="task.id" 
+          v-bind:id="task.id"
           v-bind:key="task.id"
-      > {{ task.desc }} </Task>
+          > {{ task.desc }} </Task>
     </div>
     <div class="tasks-done">
-      <Task v-for="task in tasksDone" 
-          v-bind:id="task.id" 
+      <Task v-for="task in tasksDone"
+          v-bind:id="task.id"
           v-bind:key="task.id"
           > {{ task.desc }} </Task>
     </div>
@@ -42,7 +43,6 @@
 import Task from '../ui/Task.vue'
 import Header from '../ui/Header.vue'
 import Error from '../ui/Error.vue'
-import Logout from '../ui/Logout.vue'
 import Container from '../ui/Container.vue'
 import ToggleOpenCloseButton from '../ui/ToggleOpenCloseButton.vue'
 import Selectdeadline from '../ui/Selectdeadline.vue'
@@ -57,7 +57,6 @@ export default {
     Error,
     Container,
     ToggleOpenCloseButton,
-    Logout,
     Selectdeadline
   },
   props: {
@@ -66,7 +65,7 @@ export default {
     return {
       newTaskDescription: "", // holder for input data
       showInput: false,
-      deadline: 5,      
+      deadline: 5,
     }
   },
   mounted() {
@@ -101,7 +100,7 @@ export default {
         let date = new Date();
         date.setDate(date.getDate() + this.deadline);
         let formattedDate = moment(date).format("YYYY-MM-DD");
-      
+
         let task = {
           description: this.newTaskDescription ,
           date: formattedDate,
@@ -126,7 +125,7 @@ export default {
     }
   },
 
-  
+
 }
 </script>
 
@@ -163,7 +162,7 @@ export default {
   color: #ecf0f1;
   font-size: 24px;
   text-align: center;
-  font-family: 'Nova Flat', cursive;
+  font-family: "Nova Flat", cursive;
   border-width: 0;
 }
 
@@ -183,5 +182,11 @@ export default {
 .tasks-todo {
   margin-top: 25px;
   box-shadow: 0px 0px 14px 1px grey;
+}
+
+.toggleButton {
+  position: absolute;
+  left: 48%;
+  top: 8.8rem;
 }
 </style>

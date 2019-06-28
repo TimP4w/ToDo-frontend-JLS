@@ -11,33 +11,34 @@
   </div>
   <div class="title">
     <div :class="{ 'line-through': isDone }">
-      {{currentTask.title}}
+      {{ currentTask.title }}
     </div>
   </div>
   <div class="date">
     <div class="days-left">
        <i class="far fa-clock clock" :class="isLate"> 
-         <span class="date-info">{{currentTask.date | readableDate}}</span> 
+         <span class="date-info">{{ currentTask.date | readableDate }}</span> 
       </i> 
-      {{currentTask.date | daysleft}}
+      {{ currentTask.date | daysleft }}
     </div>     
   </div>
   <div class="remove">
-    <i class="fas fa-trash trash" 
-       :class="{'hidden' : !toggleRemove}" 
-       @click="removeTask">
-    </i>
+    <Trash @button-clicked="removeTask"></Trash>
   </div>
 </div>
 </template>
 <script>
 
 import moment from 'moment'
+import Trash from './Trash.vue'
 import { mapGetters, mapActions } from 'vuex'
 
 
 export default {
   name: 'Task',
+  components: {
+    Trash
+  },
   props: {
     id: Number,
   },
@@ -55,14 +56,13 @@ export default {
   filters: {
     // Return date
     readableDate: function(date) {
-      let myDate = moment(date, 'YYYY-MM-DD').toDate();
-      return myDate.getDate() + "/" + (myDate.getMonth() + 1) + "/" + myDate.getFullYear();
+      return moment(date).format("DD/MM/YYYY");
     },
     daysleft: function(date) {
       let myDate = moment(date, 'YYYY-MM-DD').toDate();
       let today = new Date();
       let diff = myDate - today;
-      let days = Math.floor(diff / (1000 * 60 * 60 * 24)) +1;
+      let days = Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
 
       if (days < 1 && days !== 0) {
         return "Overdue by " + Math.abs(days) + (((Math.abs(days) > 1)) ? " days" : " day");
@@ -119,9 +119,7 @@ export default {
     },
     removeTask() {
       this.deleteTask(this.currentTask);
-    },
-
-
+    }
   }
 }
 </script>
@@ -199,18 +197,6 @@ export default {
   bottom: 8px;
 }
 
-.trash {
-  font-size: 24px;
-  cursor: pointer;
-}
-
-.trash:hover {
-  color: red;
-}
-
-.trash:active{
-  color: #c0392b;
-}
 
 /* Special Properties */
 .hidden {
