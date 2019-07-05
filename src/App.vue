@@ -19,7 +19,7 @@ export default {
   mounted() {
 
     if(!this.isAuthenticated) {
-      this.$router.replace({ name: "LoginView"});
+      this.$router.push({ name: "LoginView"});
     }
 
   },
@@ -38,7 +38,7 @@ export default {
   watch: {
     isLoggedIn(oldStatus, newStatus) {
       if(newStatus) {
-        this.$router.replace({ name: "LoginView"});
+        this.$router.push({ name: "LoginView"});
       }
     }
   },

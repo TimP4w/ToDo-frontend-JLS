@@ -27,14 +27,14 @@
     </div>
     <div v-if="tasksTodo.length > 0" class="tasks-todo">
       <BaseTask v-for="task in tasksTodo"
-                v-bind:id="task.id"
-                v-bind:key="task.id"
+                v-bind:id="task._id"
+                v-bind:key="task._id"
           > {{ task.desc }} </BaseTask>
     </div>
     <div class="tasks-done">
       <BaseTask v-for="task in tasksDone"
-                v-bind:id="task.id"
-                v-bind:key="task.id"
+                v-bind:id="task._id"
+                v-bind:key="task._id"
           > {{ task.desc }} </BaseTask>
     </div>
   </BaseContainer>
@@ -70,12 +70,6 @@ export default {
       deadline: 5,
     }
   },
-  mounted() {
-    if(this.authToken) {
-      this.getTasks();
-    }
-
-  },
   //Filtered lists methods
   computed: {
     ...mapGetters([
@@ -92,7 +86,8 @@ export default {
       "postNewTask"
     ]),
     ...mapMutations([
-      "THROW_ERROR"
+      "THROW_ERROR",
+      "LOGOUT"
     ]),
     addNewTask() {
       //Check if input is empty
@@ -118,6 +113,17 @@ export default {
       if (this.deadline > 1) {
         this.deadline--;
       }
+    }
+  },
+  mounted() {
+    //Need a better solution here.
+    let token = localStorage.getItem("token")
+    if(token === "") {
+        this.LOGOUT(token);
+        this.$router.push({ name: "LoginView" });
+    }
+    else if(this.authToken) {
+      this.getTasks();
     }
   },
 
