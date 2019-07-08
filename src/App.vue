@@ -6,7 +6,7 @@
 
 <script>
 
-import { mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 
 export default {
   name: 'app',
@@ -18,8 +18,8 @@ export default {
   },
   mounted() {
 
-    if(!this.isAuthenticated) {
-      this.$router.push({ name: "LoginView"});
+    if(!this.authenticated) {
+      this.$router.replace({ name: "LoginView"});
     }
 
   },
@@ -27,18 +27,12 @@ export default {
 
   },
   computed: {
-    ...mapGetters([
-      "isAuthenticated",
-
-    ]),
-    isLoggedIn() {
-      return this.isAuthenticated;
-    },
+    ...mapState(['authenticated']),
   },
   watch: {
-    isLoggedIn(oldStatus, newStatus) {
-      if(newStatus) {
-        this.$router.push({ name: "LoginView"});
+    authenticated(newStatus, oldStatus) {
+      if(!newStatus && oldStatus) {
+        this.$router.replace({ name: "LoginView"});
       }
     }
   },

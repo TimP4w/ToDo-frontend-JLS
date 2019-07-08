@@ -86,7 +86,6 @@ export default {
                 this.THROW_ERROR("Wrong username or password");
               }
             } else {
-              console.log(e)
               this.THROW_ERROR("Something went wrong...");
 
             }

@@ -17,8 +17,8 @@ export const requestInterceptor = function() {
         var token = store.getters.authToken;
         var refreshToken = store.getters.refreshToken;
         var expiry = store.getters.tokenExpiry;
-        var expInMin = moment().diff(expiry) / 1000 / 60;
-         if (token && expInMin > -59.8 && !isRefreshing) { //Todo cambia
+        var expiryInSeconds = moment().diff(expiry) / 1000;
+         if (token && expiryInSeconds > -10 && !isRefreshing) { 
             isRefreshing = true;
             config.headers.refresh = refreshToken;
         } 
@@ -39,9 +39,11 @@ export const responseInterceptor = function() {
             let newTokens = {
                 token: response.headers['set-authorization'],
                 refreshToken: response.headers['set-refresh'],
-                expiry: moment().add(1, 'hours')
+                expiry: moment().add(response.headers['set-expiry'], 'seconds')
             }
             store.commit("SET_TOKENS", newTokens);
+            isRefreshing = false;
+
         }
         // Check if set auth and refresh token header is set -> save new values
          store.commit("QUIT_ERROR");

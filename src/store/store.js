@@ -40,13 +40,13 @@ export const store = new Vuex.Store({
             state.isError = false;
         },
         LOGIN(state, data) {
-            state.refreshToken = data.refreshToken;
-            state.authToken = data.token;
-            let expiry = moment().add(data.expiresIn, 'hours');
+            state.refreshToken = data.tokens.refreshToken;
+            state.authToken = data.tokens.jwtToken;
+            let expiry = moment().add(data.expiresIn, 'seconds');
             state.tokenExpiry = expiry;
             state.authenticated = true;
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("refreshToken", data.refreshToken);
+            localStorage.setItem("token", data.tokens.jwtToken);
+            localStorage.setItem("refreshToken", data.tokens.refreshToken);
             localStorage.setItem("tokenExpiry", expiry)
         },
         LOGOUT(state) {
@@ -67,7 +67,6 @@ export const store = new Vuex.Store({
             localStorage.setItem("refreshToken", data.refreshToken);
             localStorage.setItem("tokenExpiry", data.expiry);
         },
-
     },
 
     getters: {
