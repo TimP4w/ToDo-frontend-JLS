@@ -7,3 +7,9 @@ export const login = function(credentials) {
         "password": credentials.password
     })
 }
+
+export const refreshToken = function(token) {
+    return api.post("/auth/refresh", {
+        "refreshToken": token
+    })
+}

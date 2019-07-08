@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { fetchTasks, postTask, updateTask, deleteTask } from '../resources/todo.resource'
-import { login } from '../resources/auth.resource'
+import { login, refreshToken } from '../resources/auth.resource'
+import moment from "moment"
 
 Vue.use(Vuex)
 
@@ -11,6 +12,8 @@ export const store = new Vuex.Store({
         isError: false,
         errorMessage: "",
         authToken: "",
+        refreshToken: "",
+        tokenExpiry: Date(),
         authenticated: false,
     },
 
@@ -36,19 +39,34 @@ export const store = new Vuex.Store({
         QUIT_ERROR(state) {
             state.isError = false;
         },
-        LOGIN(state, token) {
-            state.authToken = token;
+        LOGIN(state, data) {
+            state.refreshToken = data.tokens.refreshToken;
+            state.authToken = data.tokens.jwtToken;
+            let expiry = moment().add(data.expiresIn, 'seconds');
+            state.tokenExpiry = expiry;
             state.authenticated = true;
-            localStorage.setItem("token", token);
+            localStorage.setItem("token", data.tokens.jwtToken);
+            localStorage.setItem("refreshToken", data.tokens.refreshToken);
+            localStorage.setItem("tokenExpiry", expiry)
         },
         LOGOUT(state) {
             state.authToken = "";
             state.authenticated = false;
             localStorage.setItem("token", "");
+            localStorage.setItem("refreshToken", "");
+            localStorage.setItem("tokenExpiry", "");
         },
         PUSH_API_ERROR(state, e) {
             state.apiError = e;
-        }
+        },
+        SET_TOKENS(state, data) {
+            state.refreshToken = data.refreshToken;
+            state.authToken = data.token;
+            state.tokenExpiry = data.expiry;
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("refreshToken", data.refreshToken);
+            localStorage.setItem("tokenExpiry", data.expiry);
+        },
     },
 
     getters: {
@@ -62,7 +80,7 @@ export const store = new Vuex.Store({
             return state.tasksList.filter(task => task.done !== true);
         },
         task: (state) => (id) => {
-            return state.tasksList.find(task => task.id === id);
+            return state.tasksList.find(task => task._id === id);
         },
         tasksDoneCount(state) {
             return state.tasksList.filter(task => task.done === true).length;
@@ -81,7 +99,14 @@ export const store = new Vuex.Store({
         },
         isAuthenticated(state) {
             return state.authenticated;
-        }
+        },
+        tokenExpiry(state) {
+           return state.tokenExpiry;
+        },
+        refreshToken(state) {
+            return state.refreshToken;
+        },
+        
     },
     actions: {
         postNewTask(context, BaseTask) {
@@ -100,23 +125,31 @@ export const store = new Vuex.Store({
         },
         updateTask(context, data) {
             let payload = {
-                    "title": data.newTask.description,
+                    "title": data.newTask.title,
                     "date": data.newTask.date,
                     "done": data.newTask.done
             }
-            return updateTask(data.oldTask.id, payload);
+            return updateTask(data.oldTask._id, payload);
         },
         deleteTask(context, BaseTask) {
-            return deleteTask(BaseTask.id).then(response => {
-                if(response.status === 201) {
+            return deleteTask(BaseTask._id).then(response => {
+                if(response.status === 201 || response.status === 200) {
                     context.commit("DELETE_TASK", BaseTask);
                 }
             });
         },
         doLogin(context, credentials) {
             return login(credentials).then(response => {
-                context.commit("LOGIN", response.data.token);
+                context.commit("LOGIN", response.data);
+
             });
-        }
+        },
+        refreshToken(context) {
+            return refreshToken(context.state.refreshToken).then(response => {
+                context.commit("SET_REFRESH", response.data);
+            })
+        },
+       
+        
     },
 })

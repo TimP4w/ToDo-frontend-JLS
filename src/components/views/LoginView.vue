@@ -1,6 +1,6 @@
 <template>
   <BaseContainer>
-    <BaseHeader v-bind:title="'LoginView'"></BaseHeader>
+    <BaseHeader v-bind:title="'Login'"></BaseHeader>
     <BaseError></BaseError>
     <form class="new-task-form" v-on:submit.prevent="login">
       <div class="user">
@@ -48,18 +48,22 @@ export default {
   },
 
   mounted() {
-    //Need a better solution here.
-    let token = localStorage.getItem("token")
-    if(token) {
-        this.LOGIN(token);
-        this.$router.replace({ name: "TodoView" });
+    let data = {
+      token: localStorage.getItem("token"),
+      refreshToken: localStorage.getItem("refreshToken"),
+      expiry: localStorage.getItem("tokenExpiry")
+    }
+    if(data.token) {
+        this.SET_TOKENS(data);
+        this.$router.push({ name: "TodoView" });
     }
   },
 
   methods: {
       ...mapMutations([
         "THROW_ERROR",
-        "LOGIN"
+        "LOGIN",
+        "SET_TOKENS"
       ]),
       ...mapActions([
         "doLogin"
@@ -74,12 +78,18 @@ export default {
           }
           this.doLogin(credentials)
           .then(response => {
-            this.$router.replace({ name: "TodoView" });
+            this.$router.push({ name: "TodoView" });
             return response;
           }).catch(e => {
-            if(e.response.status === 401) {
-              this.THROW_ERROR("Wrong username or password");
+            if(e.response) {
+              if(e.response.status === 401) {
+                this.THROW_ERROR("Wrong username or password");
+              }
+            } else {
+              this.THROW_ERROR("Something went wrong...");
+
             }
+
           });
         }
       },

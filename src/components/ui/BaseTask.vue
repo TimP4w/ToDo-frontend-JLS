@@ -40,7 +40,7 @@ export default {
     TrashIcon
   },
   props: {
-    id: Number,
+    id: String,
   },
   data: function () {
     return {
